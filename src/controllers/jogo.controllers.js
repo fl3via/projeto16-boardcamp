@@ -17,9 +17,9 @@ export async function postInserirJogo(req, res) {
 
     try {
         const game = await db.query(`SELECT * FROM games WHERE name = $1;`, [name])
-        if (game.rowCount !== 0) return res.status(409).send({ message: 'já existe'})
+        if (game.rowCount !== 0) return res.sendStatus(409)
 
-        await db.query(`INSERT INTO games (name, image, "stokTotal", "pricePerDay") VALUES ($1, $2, $3, $4);`, [name, image, stockTotal, pricePerDay])
+        await db.query(`INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4);`, [name, image, stockTotal, pricePerDay])
 
         res.sendStatus(201)
     } catch (err) {
