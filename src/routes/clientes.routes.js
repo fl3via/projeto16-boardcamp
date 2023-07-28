@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { getListaTodosClientes, getBuscarClienteId, putAtualizarCliente } from '../controllers/clientes.controllers.js'
 
 
 const routerClientes = Router()

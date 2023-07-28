@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { getListarAlugueis, postInserirAluguel, postFinalizarAluguel, apagarAluguel } from '../controllers/aluguel.controllers.js'
 
 const routerAlugueis = Router()
 
