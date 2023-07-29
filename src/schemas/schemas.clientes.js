@@ -1,4 +1,7 @@
 import joi from 'joi'
+import joiDate from '@joi/date'
+
+
 
 export const clientesSchema = joi.object({
 
