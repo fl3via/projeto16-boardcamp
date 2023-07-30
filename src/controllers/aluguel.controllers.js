@@ -1,5 +1,4 @@
 import { db } from '../database/database.connection.js'
-import { aluguelSchema } from '../schemas/schemas.aluguel.js'
 import dayjs from 'dayjs'
 
 
@@ -7,25 +6,26 @@ import dayjs from 'dayjs'
 // FUNÇÕES DE ALUGUEIS 
 export async function getListarAlugueis(req, res) {
     try {
-        const { rows: rentals } = await db.query(`SELECT rentals.*, customers.name AS "customerName", games.name AS "gameName" FROM rentals
-        JOIN customers ON rentals. "customerId" = customers.id
-        JOIN games ON rentals."gameId" = games.id;`)
+        const rentals = await db.query(`
+            SELECT rentals.*, customers.name AS "nomeCliente", games.name AS "nomeJogo"
+            FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+        `)
 
-        const result = rentals.map(({ customerId, customerName, gameId, gameName, ...rest }) => ({
+        const result = rentals.rows.map(({ customerId, customerName, gameId, gameName, ...rest  }) => ({
             ...rest,
             customers: { id: customerId, name: customerName },
-            game: { id: gameId, name: gameName }
+        game: { id: gameId, name: gameName }
         }))
 
         res.send(result)
-
     } catch (err) {
         res.status(500).send(err.message)
     }
-
 }
 
-
+//Criar aluguel
 export async function postInserirAluguel(req, res) {
     const { customerId, gameId, daysRented } = req.body
 
