@@ -27,16 +27,18 @@ export async function getBuscarClienteId(req, res) {
 export async function postInserirClientes(req, res) {
     const { name, phone, cpf, birthday } = req.body
     try {
-        const clientes = await db.query(`SELECT * FROM customers WHERE id = $1`, [cpf])
-        if (clientes.rowCount !== 0) return res.status(409).send({ message: 'Usuário já existe' })
+        const clientes = await db.query(`SELECT * FROM customers WHERE cpf=$1`, [cpf])
+        if (clientes.rowCount !== 0) return res.sendStatus(409)
 
-        await db.query(` INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1, $2, $3, $4)`, [name, phone, cpf, birthday])
+        await db.query(`
+        INSERT INTO customers (name, phone, cpf, birthday)
+        VALUES ($1, $2, $3, $4)`,
+            [name, phone, cpf, birthday])
         res.sendStatus(201)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
-
 
 
 export async function putAtualizarCliente(req, res) {
@@ -56,3 +58,5 @@ export async function putAtualizarCliente(req, res) {
         res.status(500).send(err.message)
     }
 }
+
+
