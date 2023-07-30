@@ -46,17 +46,18 @@ export async function putAtualizarCliente(req, res) {
     const { name, phone, cpf, birthday } = req.body
 
     try {
-        const clientes = await db.query(`SELECT * FROM customers WHERE id = $1`, [cpf])
-
-        if (clientes.rowCount > 0 && clientes.rows[0].id === Number(id)) {
+        const clientes = await db.query(`SELECT * FROM customers WHERE cpf = $1`, [cpf])
+        if (clientes.rowCount > 0 && clientes.rows[0].id !== Number(id)) {
             return res.status(409).send({ message: 'Usuário já existe' })
-        } else {
-            await db.query(`UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5`, [name, phone, cpf, birthday, id])
-            res.sendStatus(200)
         }
+
+        await db.query(`UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5`, [name, phone, cpf, birthday, id])
+        res.sendStatus(200)
+        
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
+
 
 
