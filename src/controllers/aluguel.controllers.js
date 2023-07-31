@@ -19,7 +19,7 @@ export async function getListarAlugueis(req, res) {
         game: { id: gameId, name: gameName }
         }))
 
-        res.send(result)
+        res.send(rentals)
     } catch (err) {
         res.status(500).send(err.message)
     }
