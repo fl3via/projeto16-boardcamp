@@ -108,20 +108,35 @@ export async function postFinalizarAluguel(req, res) {
 
 
 export async function apagarAluguel(req, res) {
+  
     try {
+        const { id } = req.params
 
+        const aluguelQuery = `
+            SELECT *
+            FROM rentals
+            WHERE "id" = $1;
+        `
+        const aluguelResult = await db.query(aluguelQuery, [id])
+        const aluguel = aluguelResult.rows[0]
+
+        if (!aluguel) {
+            return res.sendStatus(404)
+        }
+
+        if (aluguel.returnDate !== null) {
+            return res.sendStatus(400)
+        }
+
+        const deleteQuery = `
+            DELETE FROM rentals
+            WHERE "id" = $1;
+        `
+        await db.query(deleteQuery, [id])
+
+        res.sendStatus(200)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
-
-
-
-
-
-
-
-
-
-
 
