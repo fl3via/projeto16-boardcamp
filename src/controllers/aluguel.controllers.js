@@ -1,7 +1,4 @@
 import { db } from '../database/database.connection.js'
-import dayjs from 'dayjs'
-
-
 
 // FUNÇÕES DE ALUGUEIS 
 export async function getListarAlugueis(req, res) {
@@ -32,7 +29,7 @@ export async function getListarAlugueis(req, res) {
             }
         }))
 
-        res.json(alugueis)
+        res.send(alugueis)
     } catch (err) {
         res.status(500).send(err.message)
     }
