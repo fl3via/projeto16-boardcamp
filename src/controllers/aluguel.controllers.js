@@ -3,38 +3,38 @@ import { db } from '../database/database.connection.js'
 // FUNÇÕES DE ALUGUEIS 
 export async function getListarAlugueis(req, res) {
     try {
-        const alugueisQuery = `
-            SELECT rentals.*, customers.name AS customer_name, games.name AS game_name
-            FROM rentals
-            JOIN customers ON rentals."customerId" = customers.id
-            JOIN games ON rentals."gameId" = games.id;
-        `;
-        const alugueisResult = await db.query(alugueisQuery)
-        const alugueis = alugueisResult.rows.map((aluguel) => ({
-            id: aluguel.id,
-            customerId: aluguel.customerId,
-            gameId: aluguel.gameId,
-            rentDate: aluguel.rentDate instanceof Date ? aluguel.rentDate.toISOString().slice(0, 10) : null,
-            daysRented: aluguel.daysRented,
-            returnDate: aluguel.returnDate,
-            originalPrice: aluguel.daysRented * aluguel.pricePerDay,
-            delayFee: aluguel.atraso !== null ? aluguel.atraso : null,
-            customer: {
-                id: aluguel.customerId,
-                name: aluguel.customer_name
-            },
-            game: {
-                id: aluguel.gameId,
-                name: aluguel.game_name
-            }
-        }))
-
-        res.send(alugueis)
+      const alugueisQuery = `
+        SELECT rentals.*, customers.name AS customer_name, games.name AS game_name, games."pricePerDay"
+        FROM rentals
+        JOIN customers ON rentals."customerId" = customers.id
+        JOIN games ON rentals."gameId" = games.id;
+      `
+      const alugueisResult = await db.query(alugueisQuery)
+      const alugueis = alugueisResult.rows.map((aluguel) => ({
+        id: aluguel.id,
+        customerId: aluguel.customerId,
+        gameId: aluguel.gameId,
+        rentDate: aluguel.rentDate instanceof Date ? aluguel.rentDate.toISOString().slice(0, 10) : null,
+        daysRented: aluguel.daysRented,
+        returnDate: aluguel.returnDate,
+        originalPrice: aluguel.daysRented * aluguel.pricePerDay, 
+        delayFee: aluguel.atraso !== null ? aluguel.atraso : null,
+        customer: {
+          id: aluguel.customerId,
+          name: aluguel.customer_name,
+        },
+        game: {
+          id: aluguel.gameId,
+          name: aluguel.game_name,
+        },
+      }))
+  
+      res.send(alugueis)
     } catch (err) {
-        res.status(500).send(err.message)
+      res.status(500).send(err.message)
     }
-}
-
+  }
+  
 
 //Criar aluguel
 export async function postInserirAluguel(req, res) {
