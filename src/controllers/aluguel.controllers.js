@@ -6,24 +6,38 @@ import dayjs from 'dayjs'
 // FUNÇÕES DE ALUGUEIS 
 export async function getListarAlugueis(req, res) {
     try {
-        const rentals = await db.query(`
-            SELECT rentals.*, customers.name AS "nomeCliente", games.name AS "nomeJogo"
+        const alugueisQuery = `
+            SELECT rentals.*, customers.name AS customer_name, games.name AS game_name
             FROM rentals
             JOIN customers ON rentals."customerId" = customers.id
             JOIN games ON rentals."gameId" = games.id;
-        `)
-
-        const result = rentals.rows.map(({ customerId, customerName, gameId, gameName, ...rest }) => ({
-            ...rest,
-            customers: { id: customerId, name: customerName },
-            game: { id: gameId, name: gameName }
+        `
+        const alugueisResult = await db.query(alugueisQuery)
+        const alugueis = alugueisResult.rows.map((aluguel) => ({
+            id: aluguel.id,
+            customerId: aluguel.customerId,
+            gameId: aluguel.gameId,
+            rentDate: aluguel.rentDate,
+            daysRented: aluguel.daysRented,
+            returnDate: aluguel.returnDate,
+            originalPrice: aluguel.daysRented * aluguel.pricePerDay,
+            delayFee: aluguel.atraso !== null ? aluguel.atraso : null,
+            customer: {
+                id: aluguel.customerId,
+                name: aluguel.customer_name
+            },
+            game: {
+                id: aluguel.gameId,
+                name: aluguel.game_name
+            }
         }))
 
-        res.send(rentals)
+        res.json(alugueis)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
+
 
 //Criar aluguel
 export async function postInserirAluguel(req, res) {
