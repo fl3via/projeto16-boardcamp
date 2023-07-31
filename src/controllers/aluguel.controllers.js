@@ -3,37 +3,27 @@ import { db } from '../database/database.connection.js'
 // FUNÇÕES DE ALUGUEIS 
 export async function getListarAlugueis(req, res) {
     try {
-      const alugueisQuery = `
-        SELECT rentals.*, customers.name AS customer_name, games.name AS game_name, games."pricePerDay"
+      const alugueis = await db.query(`
+        SELECT rentals.*, customers.name AS "nomeCliente", games.name AS "nomeJogo"
         FROM rentals
         JOIN customers ON rentals."customerId" = customers.id
-        JOIN games ON rentals."gameId" = games.id;
-      `
-      const alugueisResult = await db.query(alugueisQuery)
-      const alugueis = alugueisResult.rows.map((aluguel) => ({
-        id: aluguel.id,
-        customerId: aluguel.customerId,
-        gameId: aluguel.gameId,
-        rentDate: aluguel.rentDate instanceof Date ? aluguel.rentDate.toISOString().slice(0, 10) : null,
-        daysRented: aluguel.daysRented,
-        returnDate: aluguel.returnDate,
-        originalPrice: aluguel.daysRented * aluguel.pricePerDay, 
-        delayFee: aluguel.atraso !== null ? aluguel.atraso : null,
-        customer: {
-          id: aluguel.customerId,
-          name: aluguel.customer_name,
-        },
-        game: {
-          id: aluguel.gameId,
-          name: aluguel.game_name,
-        },
-      }))
+        JOIN games ON rentals."gameId" = games.id
+      `)
   
-      res.send(alugueis)
+      const listarAluguel = []
+      for (const aluguel of alugueis.rows) {
+        const customer = { id: aluguel.customerId, name: aluguel.nomeCliente }
+        const game = { id: aluguel.gameId, name: aluguel.nomeJogo }
+        const aluguelObjeto = { ...aluguel, customer, game }
+        listarAluguel.push(aluguelObjeto)
+      }
+  
+      res.send(listarAluguel)
     } catch (err) {
       res.status(500).send(err.message)
     }
   }
+  
   
 
 //Criar aluguel
