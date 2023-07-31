@@ -8,13 +8,13 @@ export async function getListarAlugueis(req, res) {
             FROM rentals
             JOIN customers ON rentals."customerId" = customers.id
             JOIN games ON rentals."gameId" = games.id;
-        `
+        `;
         const alugueisResult = await db.query(alugueisQuery)
         const alugueis = alugueisResult.rows.map((aluguel) => ({
             id: aluguel.id,
             customerId: aluguel.customerId,
             gameId: aluguel.gameId,
-            rentDate: aluguel.rentDate,
+            rentDate: aluguel.rentDate instanceof Date ? aluguel.rentDate.toISOString().slice(0, 10) : null,
             daysRented: aluguel.daysRented,
             returnDate: aluguel.returnDate,
             originalPrice: aluguel.daysRented * aluguel.pricePerDay,
