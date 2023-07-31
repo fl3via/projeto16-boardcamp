@@ -10,7 +10,7 @@ export async function getListarAlugueis(req, res) {
             SELECT rentals.*, customers.name AS "nomeCliente", games.name AS "nomeJogo"
             FROM rentals
             JOIN customers ON rentals."customerId" = customers.id
-            JOIN games ON rentals."gameId" = games.id
+            JOIN games ON rentals."gameId" = games.id;
         `)
 
         const result = rentals.rows.map(({ customerId, customerName, gameId, gameName, ...rest  }) => ({
