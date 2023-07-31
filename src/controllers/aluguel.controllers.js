@@ -13,10 +13,10 @@ export async function getListarAlugueis(req, res) {
             JOIN games ON rentals."gameId" = games.id;
         `)
 
-        const result = rentals.rows.map(({ customerId, customerName, gameId, gameName, ...rest  }) => ({
+        const result = rentals.rows.map(({ customerId, customerName, gameId, gameName, ...rest }) => ({
             ...rest,
             customers: { id: customerId, name: customerName },
-        game: { id: gameId, name: gameName }
+            game: { id: gameId, name: gameName }
         }))
 
         res.send(rentals)
@@ -62,15 +62,50 @@ export async function postInserirAluguel(req, res) {
     }
 }
 
-
-
 export async function postFinalizarAluguel(req, res) {
     try {
+        const { id } = req.params
+        const currentDate = new Date().toISOString().slice(0, 10)
 
+        const aluguelQuery = `
+            SELECT rentals.*, games."pricePerDay"
+            FROM rentals
+            JOIN games ON rentals."gameId" = games.id
+            WHERE rentals."id" = $1;
+        `
+        const aluguelResult = await db.query(aluguelQuery, [id])
+        const aluguel = aluguelResult.rows[0]
+
+        if (!aluguel) {
+            return res.sendStatus(404)
+        }
+
+        if (aluguel.returnDate !== null) {
+            return res.sendStatus(400)
+        }
+
+        const { rentDate, daysRented, pricePerDay } = aluguel
+        const atrasoDias = Math.max(
+            Math.floor(
+                (Date.now() - new Date(rentDate).getTime()) / (24 * 60 * 60 * 1000) - daysRented
+            ),
+            0
+        )
+        const atraso = atrasoDias > 0 ? atrasoDias * pricePerDay : null
+
+        const updateQuery = `
+            UPDATE rentals
+            SET "returnDate" = $1, "delayFee" = $2
+            WHERE "id" = $3;
+        `
+        await db.query(updateQuery, [currentDate, atraso, id])
+
+        res.sendStatus(200)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
+
 
 export async function apagarAluguel(req, res) {
     try {
