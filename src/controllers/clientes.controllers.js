@@ -4,7 +4,8 @@ import { db } from '../database/database.connection.js'
 
 export async function getListaTodosClientes(req, res) {
     try {
-        const clientes = await db.query(`SELECT * FROM customers;`)
+        const clientes = await db.query(`
+        SELECT id, name, phone, cpf, to_char(birthday, 'YYYY-MM-DD') as birthday FROM customers;`)
         res.send(clientes.rows)
     } catch (err) {
         res.status(500).send(err.message)
@@ -15,7 +16,8 @@ export async function getListaTodosClientes(req, res) {
 export async function getBuscarClienteId(req, res) {
     const { id } = req.params
     try {
-        const clientes = await db.query(`SELECT * FROM customers WHERE id = $1`, [id])
+        const clientes = await db.query(`
+        SELECT id, name, phone, cpf, to_char(birthday, 'YYYY-MM-DD') as birthday FROM customers WHERE id = $1`, [id])
         if (clientes.rowCount === 0) return res.status(404).send({ message: 'Usuário não existe' })
         res.send(clientes.rows[0])
     } catch (err) {
